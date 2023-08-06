@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/OpenGLApp",
             "args": [],
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "preLaunchTask": "${defaultBuildTask}"
         }
 

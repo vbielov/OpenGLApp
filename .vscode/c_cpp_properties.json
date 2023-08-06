@@ -3,8 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/include/",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/include/GL",
+                "${workspaceFolder}/include/GLFW",
+                "${workspaceFolder}/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

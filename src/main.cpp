@@ -1,83 +1,69 @@
 #include <iostream>
 #include "Window.hpp"
+#include "Renderer.hpp"
+#include "LineRenderer.hpp"
+#include "Texture.hpp"
+#include "Scene.hpp"
+#include "Button.hpp"
+#include "Player.hpp"
 
 int main()
 {
-	Window window = Window(640, 480, "Title");
+	Window window = Window(640, 640, "OpenGLApp");
+	Renderer renderer = Renderer();
+	LineRenderer lineRenderer = LineRenderer();
+	
+	Texture::player = new Texture("/home/user/Desktop/dev/OpenGLApp/res/slime.png");
+	Texture::menuButton = new Texture("/home/user/Desktop/dev/OpenGLApp/res/blue_button.png");
+	Shader::spriteShader = new Shader("/home/user/Desktop/dev/OpenGLApp/res/spriteShader.glsl");
 
-	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f
-	};
+	Scene menuLevel = Scene();
+	Scene mainLevel = Scene();
+	Scene::menuLevel = &menuLevel;
+	Scene::mainLevel = &mainLevel;
 
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);  
+	Scene::Load(Scene::menuLevel);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);  
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	Button button = Button(
+		Vector3(0, 0, 0), 
+		Vector2(1.0f, 0.25f), 
+		Sprite(
+			Texture::menuButton,
+			Vector2(0, 0),
+			Vector2(1, 1)
+		),
+		[]() -> void {
+			std::cout << "Sure it's clicked!" << std::endl;
+			Scene::Load(Scene::mainLevel);
+		}
+	);
+	Scene::menuLevel->Instantiate(&button);
 
-	const char *vertexShaderSource = "#version 330 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"void main()\n"
-		"{\n"
-		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-		"}\0";
-
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	const char *fragmentShaderSource = "#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"void main()\n"
-		"{\n"
-		"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-		"}\0";
-
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	glUseProgram(shaderProgram);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);  
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);  
-
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-
-	unsigned int indices[] = {  // note that we start from 0!
-		0, 1, 2,   // first triangle
-	};
-
-	unsigned int EBO;
-	glGenBuffers(1, &EBO);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
+	Player player = Player(
+		Vector3(0, 0, 0),
+		Vector2(0.25f, 0.25f),
+		Sprite(
+			Texture::player,
+			Vector2(0, 0),
+			Vector2(1, 1)
+		)
+	);
+	Scene::mainLevel->Instantiate(&player);
+	
+	
 	while(window.IsOpen())
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.3f, 0.5f, 0.6f, 1.0f);
+		
+		Scene::currentScene->UpdateGameLoop();
+
+		Renderer::DrawCall();
+		LineRenderer::DrawCall();
 	}
+
+	delete Texture::menuButton;
+	delete Shader::spriteShader;
 	
 	return 0;
 }

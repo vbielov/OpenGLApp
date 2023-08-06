@@ -2,21 +2,44 @@ cmake_minimum_required(VERSION 3.12)
 
 project(OpenGLApp)
 
+set(CMAKE_C_COMPILER /usr/bin/gcc)
+set(CMAKE_CXX_COMPILER /usr/bin/g++)
+
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/lib)
+
+
+
+# SET(GCC_COVERAGE_COMPILE_FLAGS "--no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug")
+# add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_BUILD_TYPE "Debug")
 
 find_package(OpenGL REQUIRED)
 find_package(X11 REQUIRED)
 
 file(GLOB SOURCES CONFIGURE_DEPENDS "./src/*.cpp")
 
+include_directories(
+	${PROJECT_SOURCE_DIR}/include
+	${PROJECT_SOURCE_DIR}/src
+	${PROJECT_SOURCE_DIR}/include/GL
+	${PROJECT_SOURCE_DIR}/include/GLFW
+	${PROJECT_SOURCE_DIR}/include/glm
+	${PROJECT_SOURCE_DIR}/include/glm/gtc
+)
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC 
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/src
+	${PROJECT_SOURCE_DIR}/include/GL
+	${PROJECT_SOURCE_DIR}/include/GLFW
+	${PROJECT_SOURCE_DIR}/include/glm
+	${PROJECT_SOURCE_DIR}/include/glm/gtc
 )
 
 include_directories( ${OPENGL_INCLUDE_DIRS} )
